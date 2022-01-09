@@ -17,12 +17,12 @@ handler = Dataloader()
 data = preprocessing.scale(handler.data)
 
 #with pca extract eigen pairs that explains 95% of the variance in the data.
-pca = PCA(n_components=3)
+pca = PCA(n_components=0.95)
 
 #simultanously calculate eigen pairs and transform our data into the new coordinate frame
 principalComponents = pca.fit_transform(data)
 
-X_embedded = TSNE(n_components=2, learning_rate='auto',init='random').fit_transform(data)
+#X_embedded = TSNE(n_components=2, learning_rate='auto',init='random').fit_transform(data)
 
 print(principalComponents.shape)
 
@@ -33,24 +33,18 @@ labels = le.fit_transform(handler.labels)
 #split in test and train
 X_train, X_test, y_train, y_test = train_test_split(principalComponents, labels, test_size=0.20)
 
-color = np.array(['r', 'g', 'b', 'c', 'm'])
-#fig = plt.figure(figsize=(12, 12))
-#ax = fig.add_subplot(projection='3d')
-#ax.scatter(principalComponents.T[0], principalComponents.T[1], principalComponents.T[2], color=color[labels])
-
-#ax.scatter(X_embedded.T[0], X_embedded.T[1], color=color[labels])
-#plt.show()
-
+#knn results
 model = KNeighborsClassifier(n_neighbors=10)
 model.fit(X_train,y_train)
 y_pred = model.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
 print(acc)
-print(np.unique(labels))
+
+
+#kmeans
 kmeans = KMeans(n_clusters=len(np.unique(handler.labels)), random_state=0).fit(principalComponents)
-
 labels_kmeans = le.fit_transform(kmeans.labels_)
-
+color = np.array(['r', 'g', 'b', 'c', 'm'])
 fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot(projection='3d')
 ax.scatter(principalComponents.T[0], principalComponents.T[1], principalComponents.T[2], color=color[labels])
