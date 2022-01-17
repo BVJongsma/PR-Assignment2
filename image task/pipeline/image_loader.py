@@ -4,4 +4,4 @@ import numpy as np
 
 
 def load_images(path):
-    
+    print("image failed to load.")

@@ -3,6 +3,7 @@ from pipeline import feature_extraction
 from pipeline import classification
 from pipeline import clustering
 from pipeline import grid_search
+from sklearn.model_selection import train_test_split
 
 
 if __name__ == '__main__':
