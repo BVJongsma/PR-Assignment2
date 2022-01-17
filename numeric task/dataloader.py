@@ -4,7 +4,7 @@ import numpy as np
 class Dataloader():
 
     def __init__(self):
-        self.genes_path = "Genes/"
+        self.genes_path = "../../Genes/"
         reader_data = csv.reader(open(self.genes_path + "data.csv"))
         reader_labels = csv.reader(open(self.genes_path + "labels.csv"))
         self.labels_head = next(reader_labels)
