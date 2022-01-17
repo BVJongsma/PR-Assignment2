@@ -36,7 +36,12 @@ ax = fig.add_subplot(projection='3d')
 ax.scatter(principalComponents.T[0], principalComponents.T[1], principalComponents.T[2], color=color[labels])
 plt.show()
 
-#X_embedded = TSNE(n_components=2, learning_rate='auto',init='random').fit_transform(data)
+X_embedded = TSNE(n_components=2, learning_rate='auto',init='random').fit_transform(data)
+color = np.array(['r', 'g', 'b', 'c', 'm'])
+fig = plt.figure(figsize=(12, 12))
+ax = fig.add_subplot()
+ax.scatter(X_embedded.T[0], X_embedded.T[1], color=color[labels])
+plt.show()
 
 #split in test and train
 X_train, X_test, y_train, y_test = train_test_split(principalComponents, labels, test_size=0.20)
