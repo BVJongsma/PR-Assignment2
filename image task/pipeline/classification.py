@@ -4,52 +4,46 @@ import image_loader as il
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression  # regularization applied by default
+from sklearn.naive_bayes import GaussianNB
 from sklearn import metrics
 import numpy as np
 
+
 # https://www.datacamp.com/community/tutorials/k-nearest-neighbor-classification-scikit-learn
 # https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
-# https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html#sklearn.neighbors.KNeighborsClassifier
-
-""" Code for loading/augmenting images """
-"""
-dataset = il.load_images("../BigCats")
-feature_names = ['one', 'two']
-
-"""
-
-X_train, X_test, y_train, y_test = train_test_split(images,
-                                                    reduced_data)  # doesn't run since images& reduced data aren't in this file
+# https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html#sklearn.neighbors
+# .KNeighborsClassifier
 
 
-def KNN(data):
-    knn = KNeighborsClassifier(n_neighbors=5).fit(X_train, y_train)
+def KNN(X_train, X_test, y_train, y_test):
+    knn = KNeighborsClassifier(X_train, X_test, y_train, y_test)
     y_pred = knn.predict(X_test)
     acc_score = metrics.accuracy_score(y_test,
                                        y_pred)  # used accuracy score here as evaluation method just for the sake of it
-    print("accuracy score: ", acc_score)
+    print("Accuracy score for KNN: ", acc_score)
+    return knn, acc_score
 
 
-def logistic_regression(data):
+def logistic_regression(X_train, X_test, y_train, y_test):
     lr = LogisticRegression().fit(X_train, y_train)
     y_pred = lr.predict(X_test)
     acc_score = metrics.accuracy_score(y_test, y_pred)  # used accuracy score here as evaluation for the hell of it
-    print("logistic regression")
+    print("Accuracy score for Logistic Regression: ", acc_score)
+    return lr, acc_score
 
 
-def third_classification():
-    return
+def naive_bayes(X_train, X_test, y_train, y_test):
+    gnb = GaussianNB().fit(X_train, y_train)
+    y_pred = gnb.predict(X_test)
+    acc_score = metrics.accuracy_score(y_test, y_pred)
+    print("Accuracy score for Naive Bayes: ", acc_score)
+    return gnb, acc_score
 
 
-"""
-if __name__ == '__main__':
+def classification(reduced_data, images):
+    X_train, X_test, y_train, y_test = train_test_split(reduced_data, images)
+    knn_model, knn_acc = KNN(X_train, X_test, y_train, y_test)
+    lr_model, lr_acc = logistic_regression(X_train, X_test, y_train, y_test)
+    nb_model, nb_acc = naive_bayes(X_train, X_test, y_train, y_test)
 
-    num = int(input("Enter number. 1. KNN 2.Logistic Regression:"))
-    if num == 1:
-        KNN(dataset)
-    elif num == 2:
-        logistic_regression(dataset)
-    else:
-        print("please input a valid number. you've chosen ", num)
-        print("the type of num is ", type(num), " and the type of 1 is ", type(1))
-"""
+    return knn_model, lr_model, nb_model
