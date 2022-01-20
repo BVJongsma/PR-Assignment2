@@ -35,14 +35,14 @@ fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot(projection='3d')
 ax.scatter(principalComponents.T[0], principalComponents.T[1], principalComponents.T[2], color=color[labels])
 plt.show()
-
+'''
 X_embedded = TSNE(n_components=2, learning_rate='auto',init='random').fit_transform(data)
 color = np.array(['r', 'g', 'b', 'c', 'm'])
 fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot()
 ax.scatter(X_embedded.T[0], X_embedded.T[1], color=color[labels])
 plt.show()
-
+'''
 #split in test and train
 X_train, X_test, y_train, y_test = train_test_split(principalComponents, labels, test_size=0.20)
 
@@ -57,3 +57,8 @@ print("KNN Accuracy over the dimension reduced data: ", acc)
 #kmeans
 kmeans = KMeans(n_clusters=len(np.unique(handler.labels)), random_state=0).fit(principalComponents)
 labels_kmeans = le.fit_transform(kmeans.labels_)
+color = np.array(['r', 'g', 'b', 'c', 'm'])
+fig = plt.figure(figsize=(12, 12))
+ax = fig.add_subplot("3d")
+ax.scatter(principalComponents.T[0], principalComponents.T[1], principalComponents.T[2], color=color[kmeans.labels_])
+plt.show()
