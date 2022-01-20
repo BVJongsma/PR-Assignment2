@@ -40,8 +40,8 @@ def naive_bayes(X_train, X_test, y_train, y_test):
     return gnb, acc_score
 
 
-def classification(reduced_data, images):
-    X_train, X_test, y_train, y_test = train_test_split(reduced_data, images)
+def classification(X_data, Y_data):
+    X_train, X_test, y_train, y_test = train_test_split(X_data, Y_data, images, test_size=0.2)
     knn_model, knn_acc = KNN(X_train, X_test, y_train, y_test)
     lr_model, lr_acc = logistic_regression(X_train, X_test, y_train, y_test)
     nb_model, nb_acc = naive_bayes(X_train, X_test, y_train, y_test)
