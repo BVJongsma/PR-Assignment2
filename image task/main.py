@@ -35,22 +35,22 @@ if __name__ == '__main__':
     if augment:
         image_loader.augment_images(image_path)
 
-    images = image_loader.load_images(image_path)  # input: image path, output: images
-    # preprocessing(images) zodra we bij de Data augmentation stap zijn
+    # xfeatures, xlabels, yfeatures, ylabels = image_loader.load_images(image_path)
 
+    """
     # full images with train-test, model1=KNN, model2=LR, model3 =NB
-    X_train, X_test, y_train, y_test = validation(images, imlabels, 'train-test')
+    X_train, X_test, y_train, y_test = validation(images, imlabels, 'test-train')
     model1, model2, model3 = clas.classification(X_train, X_test, y_train, y_test) #classify features, input
 
     # full images with leave-one-out cross validation
     X_train, X_test, y_train, y_test = validation(images, imlabels, 'loo')
     model4, model5, model6 = clas.classification(X_train, X_test, y_train, y_test) #classify features, input
-
+    """
     # TODO: IMPLEMENT THIS
-    reduced_data = feature_extraction(images) #extract features from images
+    reduced_data, imlabels = image_loader.load_images(image_path) #extract features from images
 
     # reduced data with train-test
-    X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'train-test')
+    X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'test-train')
     rmodel1, rmodel2, rmodel3 = clas.classification(X_train, X_test, y_train, y_test) #classify features reduced images
 
     # reduced data with leave-one-out
@@ -58,5 +58,5 @@ if __name__ == '__main__':
     rmodel4, rmodel5, rmodel6 = clas.classification(X_train, X_test, y_train, y_test) #classify features reduced images
 
     # clustering: analyse outcome results for original and reduced dataset
-    clus.myDBSCAN(images)
+    # clus.myDBSCAN(images)
     clus.myDBSCAN(reduced_data)

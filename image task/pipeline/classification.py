@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import image_loader as il
+#import image_loader as il
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression  # regularization applied by default

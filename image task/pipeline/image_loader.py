@@ -6,7 +6,7 @@ import random
 import pylab as pl
 import numpy as np
 from sklearn.metrics import confusion_matrix, accuracy_score
-from scipy.cluster.vq import kmeans,vq
+from scipy.cluster.vq import kmeans, vq
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 
@@ -21,7 +21,9 @@ def img_list(path):
     return (os.path.join(path, f) for f in os.listdir(path))
 
 
+# https://machinelearningknowledge.ai/image-classification-using-bag-of-visual-words-model/
 def load_images(train_path):
+    # randomly split up the data in train/test sets by 80/20 split
     class_names = os.listdir(train_path)
     image_paths = []
     image_classes = []
@@ -31,7 +33,7 @@ def load_images(train_path):
         dir_ = os.path.join(train_path, training_name)
         class_path = img_list(dir_)
         image_paths += class_path
-        image_classes += [i]*len(os.listdir(dir_))
+        image_classes += [i] * len(os.listdir(dir_))
         i += 1
 
     D = []
@@ -46,6 +48,13 @@ def load_images(train_path):
     image_paths, y_train = zip(*train)
     image_paths_test, y_test = zip(*test)
 
+    trainfeatures, testfeatures = extraction_orb(image_paths, y_train, image_paths_test, y_test)
+
+    return np.vstack([trainfeatures, testfeatures]), list(y_train) + list(y_test)
+
+
+# feature extraction using orb
+def extraction_orb(image_paths, y_train, image_paths_test, y_test):
     des_list = []
 
     orb = cv2.ORB_create()
@@ -55,8 +64,8 @@ def load_images(train_path):
         kp = orb.detect(im, None)
         keypoints, descriptor = orb.compute(im, kp)
         des_list.append((image_path, descriptor))
-
     descriptors = des_list[0][1]
+
     for image_path, descriptor in des_list[1:]:
         descriptors = np.vstack((descriptors, descriptor))
 
@@ -74,6 +83,26 @@ def load_images(train_path):
     stdslr = StandardScaler().fit(im_features)
     im_features = stdslr.transform(im_features)
 
+    des_list_test = []
+
+    for image_path in image_paths_test:
+        image = cv2.imread(image_path)
+        kp = orb.detect(image, None)
+        keypoints_test, descriptor_test = orb.compute(image, kp)
+        des_list_test.append((image_path, descriptor_test))
+
+    test_features = np.zeros((len(image_paths_test), k), "float32")
+    for i in range(len(image_paths_test)):
+        words, distance = vq(des_list_test[i][1], voc)
+        for w in words:
+            test_features[i][w] += 1
+
+    test_features = stdslr.transform(test_features)
+
+    return im_features, test_features
+
+
+"""
     clf = LinearSVC(max_iter=80000)
     clf.fit(im_features, np.array(y_train))
 
@@ -122,23 +151,16 @@ def load_images(train_path):
     clf.predict(test_features)
     accuracy = accuracy_score(true_classes, predict_classes)
     print(accuracy)
-
-# https://machinelearningknowledge.ai/image-classification-using-bag-of-visual-words-model/
-def draw_keypoints(vis, keypoints, color = (0, 255, 255)):
-    for kp in keypoints:
-        x, y = kp.pt
-        plt.imshow(cv2.circle(vis, (int(x), int(y)), 2, color))
-
-    plt.show()
+"""
 
 
 def augment_images(path):
-    if not os.path.exists(path + 'Augmented'):
-        os.mkdir(path + 'Augmented')
+    if not os.path.exists('BigCatsAugmented'):
+        os.mkdir('BigCatsAugmented')
 
     for cats in os.listdir(path):
-        if not os.path.exists(path + 'Augmented/' + cats):
-            os.mkdir(path + 'Augmented/' + cats)
+        if not os.path.exists('BigCatsAugmented/' + cats):
+            os.mkdir('BigCatsAugmented/' + cats)
 
         imgpath = path + '/' + cats
 
