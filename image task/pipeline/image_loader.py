@@ -1,6 +1,14 @@
 """ Code for loading/augmenting images """
 import cv2
 import os
+import matplotlib.pyplot as plt
+import random
+import pylab as pl
+import numpy as np
+from sklearn.metrics import confusion_matrix, accuracy_score
+from scipy.cluster.vq import kmeans,vq
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import LinearSVC
 
 # example of horizontal shift image augmentation
 from numpy import expand_dims
@@ -9,40 +17,119 @@ from keras.preprocessing.image import img_to_array
 from keras.preprocessing.image import ImageDataGenerator
 
 
-def load_images(path):
-    img1 = cv2.imread(path + '/Cheetah/animal-africa-wilderness-zoo.jpg')
-    img2 = cv2.imread(path + '/Cheetah/cheetah-223734__340.jpg')
-
-    for cats in os.listdir(path):
-        if cats == 'ExtractedFeatures':
-            continue
-
-        imgpath = path + '/' + cats
-        augpath = path + '/ExtractedFeatures/' + cats
-
-        if not os.path.exists(augpath):
-            os.mkdir(augpath)
-
-        for file in os.listdir(imgpath):
-            sift(imgpath + '/' + file, 150, augpath)
+def img_list(path):
+    return (os.path.join(path, f) for f in os.listdir(path))
 
 
-def sift(image, keypoints, augpath):
-    img = cv2.imread(image)
-    gray_scale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+def load_images(train_path):
+    class_names = os.listdir(train_path)
+    image_paths = []
+    image_classes = []
+    i = 0
 
-    # initialize SIFT object
-    sift = cv2.xfeatures2d.SIFT_create(nfeatures=keypoints)
+    for training_name in class_names:
+        dir_ = os.path.join(train_path, training_name)
+        class_path = img_list(dir_)
+        image_paths += class_path
+        image_classes += [i]*len(os.listdir(dir_))
+        i += 1
 
-    # detect keypoints
-    keypoints, _ = sift.detectAndCompute(img, None)
+    D = []
+    for i in range(len(image_paths)):
+        D.append((image_paths[i], image_classes[i]))
+    dataset = D
+    random.shuffle(dataset)
+    split_val = round((len(image_paths)) * 0.8)
+    train = dataset[:split_val]
+    test = dataset[split_val:]
 
-    # draw keypoints
-    sift_image = cv2.drawKeypoints(gray_scale, keypoints, None)
+    image_paths, y_train = zip(*train)
+    image_paths_test, y_test = zip(*test)
 
-    # cv2.imshow("Features Image", sift_image)
-    # cv2.waitKey(0)
-    cv2.imwrite(image.replace('BigCats/', 'BigCats/ExtractedFeatures/'), sift_image)
+    des_list = []
+
+    orb = cv2.ORB_create()
+
+    for image_path in image_paths:
+        im = cv2.imread(image_path)
+        kp = orb.detect(im, None)
+        keypoints, descriptor = orb.compute(im, kp)
+        des_list.append((image_path, descriptor))
+
+    descriptors = des_list[0][1]
+    for image_path, descriptor in des_list[1:]:
+        descriptors = np.vstack((descriptors, descriptor))
+
+    descriptors_float = descriptors.astype(float)
+
+    k = 200
+    voc, variance = kmeans(descriptors_float, k, 1)
+    im_features = np.zeros((len(image_paths), k), "float32")
+
+    for i in range(len(image_paths)):
+        words, distance = vq(des_list[i][1], voc)
+        for w in words:
+            im_features[i][w] += 1
+
+    stdslr = StandardScaler().fit(im_features)
+    im_features = stdslr.transform(im_features)
+
+    clf = LinearSVC(max_iter=80000)
+    clf.fit(im_features, np.array(y_train))
+
+    des_list_test = []
+
+    for image_path in image_paths_test:
+        image = cv2.imread(image_path)
+        kp = orb.detect(image, None)
+        keypoints_test, descriptor_test = orb.compute(image, kp)
+        des_list_test.append((image_path, descriptor_test))
+
+    test_features = np.zeros((len(image_paths_test), k), "float32")
+    for i in range(len(image_paths_test)):
+        words, distance = vq(des_list_test[i][1], voc)
+        for w in words:
+            test_features[i][w] += 1
+
+    test_features = stdslr.transform(test_features)
+
+    true_classes = []
+    for i in y_test:
+        if i == 0:
+            true_classes.append("Cheetah")
+        if i == 1:
+            true_classes.append("Jaguar")
+        if i == 2:
+            true_classes.append("Leopard")
+        if i == 3:
+            true_classes.append("Lion")
+        if i == 4:
+            true_classes.append("Tiger")
+
+    predict_classes = []
+    for i in clf.predict(test_features):
+        if i == 0:
+            predict_classes.append("Cheetah")
+        if i == 1:
+            predict_classes.append("Jaguar")
+        if i == 2:
+            predict_classes.append("Leopard")
+        if i == 3:
+            predict_classes.append("Lion")
+        if i == 4:
+            predict_classes.append("Tiger")
+
+    clf.predict(test_features)
+    accuracy = accuracy_score(true_classes, predict_classes)
+    print(accuracy)
+
+# https://machinelearningknowledge.ai/image-classification-using-bag-of-visual-words-model/
+def draw_keypoints(vis, keypoints, color = (0, 255, 255)):
+    for kp in keypoints:
+        x, y = kp.pt
+        plt.imshow(cv2.circle(vis, (int(x), int(y)), 2, color))
+
+    plt.show()
 
 
 def augment_images(path):

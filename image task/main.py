@@ -8,12 +8,12 @@ from sklearn import preprocessing
 
 if __name__ == '__main__':
     image_path = "BigCats"
-    augment = True;
+    augment = False
 
-    if (augment):
+    if augment:
         image_loader.augment_images(image_path)
 
-    #images = image_loader.load_images(image_path) #input: image path, output: images
+    images = image_loader.load_images(image_path) #input: image path, output: images
     #preprocessing(images) zodra we bij de Data augmentation stap zijn
     #reduced_data = feature_extraction(images) #extract features from images
     #model1, model2, model3 = classification(images, images_label) #classify features
