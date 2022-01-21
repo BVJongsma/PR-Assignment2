@@ -16,7 +16,7 @@ import numpy as np
 
 
 def KNN(X_train, X_test, y_train, y_test):
-    knn = KNeighborsClassifier(X_train, X_test, y_train, y_test)
+    knn = KNeighborsClassifier().fit(X_train, y_train)
     y_pred = knn.predict(X_test)
     acc_score = metrics.accuracy_score(y_test,
                                        y_pred)  # used accuracy score here as evaluation method just for the sake of it

@@ -54,8 +54,8 @@ if __name__ == '__main__':
     rmodel1, rmodel2, rmodel3 = clas.classification(X_train, X_test, y_train, y_test) #classify features reduced images
 
     # reduced data with leave-one-out
-    X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'loo')
-    rmodel4, rmodel5, rmodel6 = clas.classification(X_train, X_test, y_train, y_test) #classify features reduced images
+    #X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'loo')
+    #rmodel4, rmodel5, rmodel6 = clas.classification(X_train, X_test, y_train, y_test) #classify features reduced images
 
     # clustering: analyse outcome results for original and reduced dataset
     # clus.myDBSCAN(images)
