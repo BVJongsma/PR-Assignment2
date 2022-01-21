@@ -4,7 +4,7 @@ from pipeline import feature_extraction
 from pipeline import clustering
 #from pipeline import grid_search
 from sklearn.model_selection import train_test_split
-
+from sklearn import preprocessing
 
 if __name__ == '__main__':
     image_path = "BigCats"
