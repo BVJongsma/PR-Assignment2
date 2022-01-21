@@ -46,7 +46,8 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = validation(images, imlabels, 'loo')
     model4, model5, model6 = clas.classification(X_train, X_test, y_train, y_test) #classify features, input
 
-    # reduced_data = feature_extraction(images) #extract features from images
+    # TODO: IMPLEMENT THIS
+    reduced_data = feature_extraction(images) #extract features from images
 
     # reduced data with train-test
     X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'train-test')
