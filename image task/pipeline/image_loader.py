@@ -40,23 +40,19 @@ def load_images(train_path):
     for i in range(len(image_paths)):
         D.append((image_paths[i], image_classes[i]))
     dataset = D
-    random.shuffle(dataset)
-    split_val = round((len(image_paths)) * 0.8)
-    train = dataset[:split_val]
-    test = dataset[split_val:]
 
-    image_paths, y_train = zip(*train)
-    image_paths_test, y_test = zip(*test)
+    image_paths, labels = zip(*dataset)
 
-    trainfeatures, testfeatures = extraction_orb(image_paths, y_train, image_paths_test, y_test)
+    features = extraction_orb(image_paths)
 
-    return np.vstack([trainfeatures, testfeatures]), list(y_train) + list(y_test)
+    return features, list(labels)
 
 
 # feature extraction using orb
-def extraction_orb(image_paths, y_train, image_paths_test, y_test):
+def extraction_orb(image_paths):
     des_list = []
 
+    # orb = cv2.xfeatures2d.SIFT_create()
     orb = cv2.ORB_create()
 
     for image_path in image_paths:
@@ -71,7 +67,7 @@ def extraction_orb(image_paths, y_train, image_paths_test, y_test):
 
     descriptors_float = descriptors.astype(float)
 
-    k = 200
+    k = 50
     voc, variance = kmeans(descriptors_float, k, 1)
     im_features = np.zeros((len(image_paths), k), "float32")
 
@@ -83,75 +79,7 @@ def extraction_orb(image_paths, y_train, image_paths_test, y_test):
     stdslr = StandardScaler().fit(im_features)
     im_features = stdslr.transform(im_features)
 
-    des_list_test = []
-
-    for image_path in image_paths_test:
-        image = cv2.imread(image_path)
-        kp = orb.detect(image, None)
-        keypoints_test, descriptor_test = orb.compute(image, kp)
-        des_list_test.append((image_path, descriptor_test))
-
-    test_features = np.zeros((len(image_paths_test), k), "float32")
-    for i in range(len(image_paths_test)):
-        words, distance = vq(des_list_test[i][1], voc)
-        for w in words:
-            test_features[i][w] += 1
-
-    test_features = stdslr.transform(test_features)
-
-    return im_features, test_features
-
-
-"""
-    clf = LinearSVC(max_iter=80000)
-    clf.fit(im_features, np.array(y_train))
-
-    des_list_test = []
-
-    for image_path in image_paths_test:
-        image = cv2.imread(image_path)
-        kp = orb.detect(image, None)
-        keypoints_test, descriptor_test = orb.compute(image, kp)
-        des_list_test.append((image_path, descriptor_test))
-
-    test_features = np.zeros((len(image_paths_test), k), "float32")
-    for i in range(len(image_paths_test)):
-        words, distance = vq(des_list_test[i][1], voc)
-        for w in words:
-            test_features[i][w] += 1
-
-    test_features = stdslr.transform(test_features)
-
-    true_classes = []
-    for i in y_test:
-        if i == 0:
-            true_classes.append("Cheetah")
-        if i == 1:
-            true_classes.append("Jaguar")
-        if i == 2:
-            true_classes.append("Leopard")
-        if i == 3:
-            true_classes.append("Lion")
-        if i == 4:
-            true_classes.append("Tiger")
-
-    predict_classes = []
-    for i in clf.predict(test_features):
-        if i == 0:
-            predict_classes.append("Cheetah")
-        if i == 1:
-            predict_classes.append("Jaguar")
-        if i == 2:
-            predict_classes.append("Leopard")
-        if i == 3:
-            predict_classes.append("Lion")
-        if i == 4:
-            predict_classes.append("Tiger")
-
-    clf.predict(test_features)
-    accuracy = accuracy_score(true_classes, predict_classes)
-    print(accuracy)
-"""
+    return im_features
 
 
 def augment_images(path):
