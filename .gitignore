@@ -1,5 +1,8 @@
+.idea
+__pycache__
 image task/pipeline/__pycache__
 image task/BigCats/**
 image task/BigCatsAugmented/**
 image task/BigCatsExtracted/**
 image task/csv/**
+creditcard.csv
