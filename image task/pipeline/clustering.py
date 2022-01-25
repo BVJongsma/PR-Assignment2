@@ -15,7 +15,7 @@ def myDBSCAN(x_data):
         print("Silhouette Coefficient: %0.3f", silhouette_score(x_data, labels))
     except:
         print("An exception occured.")
-    return clustering, labels
+    return clustering, labels, silhouette_score(x_data, labels)
 
 
 # to test out DBSCAN
