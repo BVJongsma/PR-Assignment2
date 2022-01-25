@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.metrics import confusion_matrix, accuracy_score
 from scipy.cluster.vq import kmeans, vq
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import LinearSVC
+# from sklearn.svm import LinearSVC
 
 # example of horizontal shift image augmentation
 from numpy import expand_dims
@@ -22,8 +22,7 @@ def img_list(path):
 
 
 # https://machinelearningknowledge.ai/image-classification-using-bag-of-visual-words-model/
-def load_images(train_path):
-    # randomly split up the data in train/test sets by 80/20 split
+def load_images(train_path, method, features=500):
     class_names = os.listdir(train_path)
     image_paths = []
     image_classes = []
@@ -43,22 +42,24 @@ def load_images(train_path):
 
     image_paths, labels = zip(*dataset)
 
-    features = extraction_orb(image_paths)
+    features = extraction(image_paths, method, features)
 
     return features, list(labels)
 
 
-# feature extraction using orb
-def extraction_orb(image_paths):
+# feature extraction using either ORB or SIFT
+def extraction(image_paths, method, features):
     des_list = []
 
-    # orb = cv2.xfeatures2d.SIFT_create()
-    orb = cv2.ORB_create()
+    if (method == 'orb'):
+        feature_extractor = cv2.ORB_create(nfeatures=features)
+    elif (method == 'sift'):
+        feature_extractor = cv2.xfeatures2d.SIFT_create(nfeatures=features)
 
     for image_path in image_paths:
         im = cv2.imread(image_path)
-        kp = orb.detect(im, None)
-        keypoints, descriptor = orb.compute(im, kp)
+        kp = feature_extractor.detect(im, None)
+        keypoints, descriptor = feature_extractor.compute(im, kp)
         des_list.append((image_path, descriptor))
     descriptors = des_list[0][1]
 
@@ -89,6 +90,10 @@ def augment_images(path):
     for cats in os.listdir(path):
         if not os.path.exists('BigCatsAugmented/' + cats):
             os.mkdir('BigCatsAugmented/' + cats)
+
+        # don't augment images if files are already present
+        if len(os.listdir('BigCatsAugmented/' + cats)) > 0:
+            continue
 
         imgpath = path + '/' + cats
 

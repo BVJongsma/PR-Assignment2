@@ -1,11 +1,10 @@
 from pipeline import image_loader
-from pipeline import feature_extraction
 from pipeline import classification as clas
 from pipeline import clustering as clus
-# from pipeline import grid_search
+
 from sklearn.model_selection import train_test_split
-from sklearn import preprocessing
 from sklearn.model_selection import LeaveOneOut
+from csv import writer
 
 
 def validation(x_data, y_data, method):
@@ -29,34 +28,70 @@ def validation(x_data, y_data, method):
 
 if __name__ == '__main__':
     image_path = "BigCats"
-    augment = True
+    augment = False
+    optimization = False
+    extraction_method = 'orb'
+    feature_optimization = False
 
     if augment:
         image_loader.augment_images(image_path)
         image_path = "BigCatsAugmented"
 
-    """
-    # full images with train-test, model1=KNN, model2=LR, model3 =NB
-    X_train, X_test, y_train, y_test = validation(images, imlabels, 'test-train')
-    model1, model2, model3 = clas.classification(X_train, X_test, y_train, y_test) #classify features, input
+    if optimization:
+        with open('csv/' + extraction_method + 'accuracy.csv', 'w+', newline='') as file:
+            csv_writer = writer(file, delimiter=',')
+            csv_writer.writerow(['KNN', 'lr', 'NB', 'DBSCAN'])
+            for i in range(0, 10):
+                reduced_data, imlabels = image_loader.load_images(image_path, extraction_method)  # extract features from images using ORB
 
-    # full images with leave-one-out cross validation
-    X_train, X_test, y_train, y_test = validation(images, imlabels, 'loo')
-    model4, model5, model6 = clas.classification(X_train, X_test, y_train, y_test) #classify features, input
-    """
+                # reduced data with train-test
+                X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'test-train')
+                rmodel1, racc_1, rmodel2, racc_2, rmodel3, racc_3 = clas.classification(X_train, X_test, y_train,
+                                                                                        y_test)  # classify features reduced images
+                _, _, score = clus.myDBSCAN(reduced_data)
 
-    reduced_data, imlabels = image_loader.load_images(image_path)  # extract features from images
+                csv_writer.writerow([racc_1, racc_2, racc_3, score])
+            file.close()
+    elif feature_optimization:
+        for features in [50, 100, 150, 200, 250, 500]:
+            with open('csv/' + str(features) + extraction_method + 'accuracy.csv', 'w+', newline='') as file:
+                csv_writer = writer(file, delimiter=',')
+                csv_writer.writerow(['KNN', 'lr', 'NB', 'DBSCAN'])
+                for i in range(0, 10):
+                    reduced_data, imlabels = image_loader.load_images(image_path, extraction_method, features)  # extract features from images using ORB
 
-    # reduced data with train-test
-    X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'test-train')
-    rmodel1, rmodel2, rmodel3 = clas.classification(X_train, X_test, y_train,
-                                                    y_test)  # classify features reduced images
-    """
-    # reduced data with leave-one-out
-    X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'loo')
-    rmodel4, rmodel5, rmodel6 = clas.classification(X_train, X_test, y_train,
-                                                    y_test)  # classify features reduced images
-    """
-    # clustering: analyse outcome results for original and reduced dataset
-    # clus.myDBSCAN(images)
-    clus.myDBSCAN(reduced_data)
+                    # reduced data with train-test
+                    X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'test-train')
+                    rmodel1, racc_1, rmodel2, racc_2, rmodel3, racc_3 = clas.classification(X_train, X_test, y_train,
+                                                                                            y_test)  # classify features reduced images
+                    _, _, score = clus.myDBSCAN(reduced_data)
+
+                    csv_writer.writerow([racc_1,racc_2,racc_3,score])
+                file.close()
+
+    else:
+        """
+        # full images with train-test, model1=KNN, model2=LR, model3 =NB
+        X_train, X_test, y_train, y_test = validation(images, imlabels, 'test-train')
+        model1, acc_1, model2, acc_2, model3, acc_3 = clas.classification(X_train, X_test, y_train, y_test) #classify features, input
+    
+        # full images with leave-one-out cross validation
+        X_train, X_test, y_train, y_test = validation(images, imlabels, 'loo')
+        model4, acc_4, model5, acc_5, model6, acc_6 = clas.classification(X_train, X_test, y_train, y_test) #classify features, input
+        """
+
+        reduced_data, imlabels = image_loader.load_images(image_path, extraction_method)  # extract features from images
+
+        # reduced data with train-test
+        X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'test-train')
+        rmodel1, racc_1, rmodel2, racc_2, rmodel3, racc_3 = clas.classification(X_train, X_test, y_train,
+                                                        y_test)  # classify features reduced images
+        """
+        # reduced data with leave-one-out
+        X_train, X_test, y_train, y_test = validation(reduced_data, imlabels, 'loo')
+        rmodel4, racc_4, rmodel5, racc_5, rmodel6, racc_6 = clas.classification(X_train, X_test, y_train,
+                                                        y_test)  # classify features reduced images
+        """
+        # clustering: analyse outcome results for original and reduced dataset
+        # clus.myDBSCAN(images)
+        _, _, score = clus.myDBSCAN(reduced_data)

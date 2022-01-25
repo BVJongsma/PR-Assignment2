@@ -45,4 +45,4 @@ def classification(X_train, X_test, y_train, y_test):
     lr_model, lr_acc = logistic_regression(X_train, X_test, y_train, y_test)
     nb_model, nb_acc = naive_bayes(X_train, X_test, y_train, y_test)
 
-    return knn_model, lr_model, nb_model
+    return knn_model, knn_acc, lr_model, lr_acc, nb_model, nb_acc
