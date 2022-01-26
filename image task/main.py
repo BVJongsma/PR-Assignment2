@@ -32,7 +32,7 @@ if __name__ == '__main__':
     optimization = False
     extraction_method = 'orb'
     feature_optimization = False
-    grid_search = True
+    grid_search = False
 
     if augment:
         image_loader.augment_images(image_path)

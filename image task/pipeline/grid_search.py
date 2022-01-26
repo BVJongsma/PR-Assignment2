@@ -10,8 +10,8 @@ import numpy as np
 
 def grid_search(data, labels):
     knn_model = KNeighborsClassifier()
-    k_range = list(range(1,50))
-    param_grid = dict(n_neighbors=k_range)
+    param_grid = {'n_neighbors': range(1,15),
+         'weights': ['uniform', 'distance']}
     # defining parameter range
     grid = GridSearchCV(knn_model, param_grid, cv=10, scoring='accuracy', return_train_score=False, verbose=1)
 
@@ -23,7 +23,8 @@ def grid_search(data, labels):
 
     lr_model = LogisticRegression()
     param_grid = {'penalty': ['l2', 'none'],
-         'max_iter': [100, 500, 1000]}
+         'max_iter': [100, 500, 1000],
+         'solver': ['newton-cg', 'lbfgs', 'sag', 'saga']}
     # defining parameter range
     grid = GridSearchCV(lr_model, param_grid, cv=10, scoring='accuracy', return_train_score=False, verbose=1)
 
