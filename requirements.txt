@@ -1,0 +1,5 @@
+needto have installed:
+
+tensorflow (keras)
+imblearn (imbalanced-learn)
+opencv-python (cv2)
