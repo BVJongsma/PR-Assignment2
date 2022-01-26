@@ -1,13 +1,10 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-#import image_loader as il
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression  # regularization applied by default
 from sklearn.naive_bayes import GaussianNB
 from sklearn import metrics
+from sklearn.model_selection import LeaveOneOut
+from sklearn.model_selection import cross_val_score
 import numpy as np
-
 
 # https://www.datacamp.com/community/tutorials/k-nearest-neighbor-classification-scikit-learn
 # https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
@@ -44,5 +41,26 @@ def classification(X_train, X_test, y_train, y_test):
     knn_model, knn_acc = KNN(X_train, X_test, y_train, y_test)
     lr_model, lr_acc = logistic_regression(X_train, X_test, y_train, y_test)
     nb_model, nb_acc = naive_bayes(X_train, X_test, y_train, y_test)
+
+    return knn_model, knn_acc, lr_model, lr_acc, nb_model, nb_acc
+
+
+def classificationloo(data, labels):
+    cv = LeaveOneOut()
+
+    knn_model = KNeighborsClassifier()
+    knn_scores = cross_val_score(knn_model, data, labels, scoring='neg_mean_absolute_error',
+                         cv=cv, n_jobs=-1)
+    knn_acc = np.mean(np.absolute(knn_scores))
+
+    lr_model = LogisticRegression()
+    lr_scores = cross_val_score(lr_model, data, labels, scoring='neg_mean_absolute_error',
+                                 cv=cv, n_jobs=-1)
+    lr_acc = np.mean(np.absolute(lr_scores))
+
+    nb_model = GaussianNB()
+    nb_scores = cross_val_score(nb_model, data, labels, scoring='neg_mean_absolute_error',
+                                 cv=cv, n_jobs=-1)
+    nb_acc = np.mean(np.absolute(nb_scores))
 
     return knn_model, knn_acc, lr_model, lr_acc, nb_model, nb_acc
