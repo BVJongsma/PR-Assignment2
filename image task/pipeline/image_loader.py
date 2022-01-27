@@ -1,16 +1,10 @@
 """ Code for loading/augmenting images """
 import cv2
 import os
-import matplotlib.pyplot as plt
-import random
-import pylab as pl
 import numpy as np
-from sklearn.metrics import confusion_matrix, accuracy_score
+
 from scipy.cluster.vq import kmeans, vq
 from sklearn.preprocessing import StandardScaler
-# from sklearn.svm import LinearSVC
-
-# example of horizontal shift image augmentation
 from numpy import expand_dims
 from keras.preprocessing.image import load_img
 from keras.preprocessing.image import img_to_array
@@ -21,13 +15,14 @@ def img_list(path):
     return (os.path.join(path, f) for f in os.listdir(path))
 
 
-# https://machinelearningknowledge.ai/image-classification-using-bag-of-visual-words-model/
+# load images found in the path given in train_path and apply feature extraction
 def load_images(train_path, method, features=500):
     class_names = os.listdir(train_path)
     image_paths = []
     image_classes = []
     i = 0
 
+    # load the images and assign labels based on the folder that these images are in
     for training_name in class_names:
         dir_ = os.path.join(train_path, training_name)
         class_path = img_list(dir_)
@@ -51,9 +46,9 @@ def load_images(train_path, method, features=500):
 def extraction(image_paths, method, features):
     des_list = []
 
-    if (method == 'orb'):
+    if method == 'orb':
         feature_extractor = cv2.ORB_create(nfeatures=features)
-    elif (method == 'sift'):
+    elif method == 'sift':
         feature_extractor = cv2.xfeatures2d.SIFT_create(nfeatures=features)
 
     for image_path in image_paths:
@@ -105,7 +100,7 @@ def augment_images(path):
             # expand dimension to one sample
             samples = expand_dims(data, 0)
             # create image data augmentation generator
-            datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=90)
+            datagen = ImageDataGenerator(rotation_range=90)
             # prepare iterator
             it = datagen.flow(samples, batch_size=1, save_to_dir='BigCatsAugmented/' + cats, save_prefix='aug',
                               save_format='jpg')
