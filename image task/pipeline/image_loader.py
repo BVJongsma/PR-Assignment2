@@ -1,4 +1,3 @@
-""" Code for loading/augmenting images """
 import cv2
 import os
 import numpy as np
@@ -77,7 +76,7 @@ def extraction(image_paths, method, features):
 
     return im_features
 
-
+#producing augmented images
 def augment_images(path):
     if not os.path.exists('BigCatsAugmented'):
         os.mkdir('BigCatsAugmented')

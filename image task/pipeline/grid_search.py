@@ -1,11 +1,6 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression  # regularization applied by default
-from sklearn.naive_bayes import GaussianNB
-from sklearn import metrics
-from sklearn.model_selection import LeaveOneOut
-from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
-import numpy as np
 
 
 def grid_search(data, labels):

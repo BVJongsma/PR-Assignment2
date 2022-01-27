@@ -3,9 +3,10 @@ from sklearn import preprocessing
 from sklearn.metrics import silhouette_score
 
 
+# clustering using DBSCAN
 def myDBSCAN(x_data):
     le = preprocessing.LabelEncoder()
-    clustering = DBSCAN(eps=0.6, min_samples=2).fit(x_data)  # adjust eps and min_samples if necessary for our actual task
+    clustering = DBSCAN(eps=0.6, min_samples=2).fit(x_data)
     labels = le.fit_transform(clustering.labels_)
     score = 999
     try:

@@ -79,19 +79,7 @@ if __name__ == '__main__':
 
                 csv_writer.writerow([racc_1, racc_2, racc_3, hard_score, soft_score, score])
             file.close()
-        """
-        # reduced data with LOO
-        with open('csv/' + extraction_method + augmentPath + 'reducedDataLOO.csv', 'w+', newline='') as file:
-            csv_writer = writer(file, delimiter=',')
-            csv_writer.writerow(['KNN', 'lr', 'NB'])
-            for i in range(0, range_limit):
-                print(i + 1, "of", range_limit)
 
-                rmodel1, racc_1, rmodel2, racc_2, rmodel3, racc_3 = clas.classificationloo(reduced_data, reduced_imlabels)  # classify features reduced images
-
-                csv_writer.writerow([racc_1, racc_2, racc_3])
-            file.close()
-        """
         # original data train/test
         with open('csv/' + extraction_method + augmentPath + 'originalDataAccuracy.csv', 'w+', newline='') as file:
             csv_writer = writer(file, delimiter=',')
@@ -106,15 +94,3 @@ if __name__ == '__main__':
                 _, _, score = clus.myDBSCAN(data)
                 csv_writer.writerow([racc_1, racc_2, racc_3, hard_score, soft_score, score])
             file.close()
-        """
-        # original data with LOO
-        with open('csv/' + extraction_method + augmentPath + 'originalDataLOO.csv', 'w+', newline='') as file:
-            csv_writer = writer(file, delimiter=',')
-            csv_writer.writerow(['KNN', 'lr', 'NB'])
-            for i in range(0, range_limit):
-                print(i + 1, "of", range_limit)
-
-                rmodel1, racc_1, rmodel2, racc_2, rmodel3, racc_3 = clas.classificationloo(data, imlabels)
-                csv_writer.writerow([racc_1, racc_2, racc_3])
-            file.close()
-        """

@@ -6,38 +6,36 @@ import matplotlib.pyplot as plt
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.semi_supervised import LabelPropagation
 
+# the amount of iterations
 n = 100
 
 
-def plot_acc_f1(data1, data2, title, plot_title):
-    plt.figure().suptitle(title)
-    plt.subplot(211)
-    plt.plot(range(1, n + 1), data1)
-    plt.ylabel('accuracy score')
-
-    plt.subplot(2, 1, 2)
-    plt.plot(range(1, n + 1), data2)
-    plt.xlabel('iteration')
-    plt.ylabel('f1-score score')
-
+# plot the distribution of the different steps
+def plot_boxplot(data1, data2, data3, title):
+    data = [data3, data2, data1]
+    fig = plt.figure().suptitle(title)
+    plt.boxplot(data, vert=False)
+    plt.yticks([1, 2, 3], ['step 4', 'step 3', 'step 2'])
     plt.show()
-    plt.savefig(plot_title)
     return
 
 
 if __name__ == '__main__':
+    # load the data & initialise
     path = "creditcard.csv"
     data = pd.read_csv(path)
-
-    data_y = data.Class
-    data_x = data.iloc[:, range(2, 29)]  # The time and amount columns are not included
-    rus = RandomUnderSampler(sampling_strategy=0.05)
-    data_x, data_y = rus.fit_resample(data_x, data_y)
 
     acc_score_2, f1score_2 = [0.0] * n, [0] * n
     acc_score_3, f1score_3 = [0.0] * n, [0] * n
     acc_score_4, f1score_4 = [0.0] * n, [0] * n
 
+    #undersampling
+    data_y = data.Class
+    data_x = data.iloc[:, range(2, 29)]  # The time and amount columns are not included
+    rus = RandomUnderSampler(sampling_strategy=0.05)
+    data_x, data_y = rus.fit_resample(data_x, data_y)
+
+    #for n iterations, do all 4 steps
     for i in range(n):
         # 1.prepare/split the data
         x_train, x_test, y_train, y_test = train_test_split(data_x, data_y, test_size=0.2, stratify=data_y)
@@ -71,14 +69,16 @@ if __name__ == '__main__':
         acc_score_4[i] = accuracy_score(y_test, y_pred)
         f1score_4[i] = f1_score(y_test, y_pred)
 
-    plot_acc_f1(acc_score_2, f1score_2, "step 2: KNN supervised", "step2.png")
+    #print the mean scores over all n iterations
     print("The mean of accuracy score for supervised baseline model is ", sum(acc_score_2) / n)
     print("The mean of F1 score for supervised baseline model is ", sum(f1score_2) / n)
 
-    plot_acc_f1(acc_score_3, f1score_3, "step 3: semi-supervised" "step3.png")
     print("The mean of accuracy score for semi-supervised model is ", sum(acc_score_3) / n)
     print("The mean of F1 score for semi-supervised model is ", sum(f1score_3) / n)
 
-    plot_acc_f1(acc_score_4, f1score_4, "step 4: full model", "step4.png")
     print("The mean of accuracy score for semi-supervised model is ", sum(acc_score_4) / n)
     print("The mean of F1 score for semi-supervised model is ", sum(f1score_4) / n)
+
+    #plot the boxplot of F1-score and Acc-score
+    plot_boxplot(acc_score_2, acc_score_3, acc_score_4, 'Accuracy score for the different steps')
+    plot_boxplot(f1score_2, f1score_3, f1score_4, 'F1-score for the different steps')
