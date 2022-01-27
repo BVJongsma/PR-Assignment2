@@ -26,8 +26,8 @@ if __name__ == '__main__':
     grid_search = False                     # Grid search step will be run if this is true
     classification_and_clustering = True    # Classification and clustering will be run if this is true
     range_limit = 40                        # Determines how often classification and clustering will be run
-                                            # Note that if augment is True, range should not be too otherwise
-                                            # The program will take a very long time to execute
+                                            # Note that if augment is True, range should not be too high if you do not
+                                            # want the program to take a very long time to execute
 
     if augment:
         image_loader.augment_images(image_path)

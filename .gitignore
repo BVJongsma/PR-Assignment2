@@ -4,5 +4,7 @@ image task/pipeline/__pycache__
 image task/BigCats/**
 image task/BigCatsAugmented/**
 image task/BigCatsExtracted/**
+image task/plotsVisuals
+image task/plotsVisuals/**
 image task/csv/**
 creditcard.csv
